@@ -3744,7 +3744,7 @@ window.Notificaciones = Notificaciones;
 // ══════════════════════════════════════════════════════════════
 
 const CargaMasiva = {
-  GENEROS_VALIDOS: ["Anatomía", "Filosofía", "Diccionarios", "Inglés", "Biología", "Físico química", "Informática", "Psicología", "Matemática", "Microbiologia y farmacologia", "Didáctica", "Enfermería", "Historia", "Salud", "Revistas de Salud", "Literatura", "Misceláneas"],
+  GENEROS_VALIDOS: ["Anatomía", "Filosofía", "Diccionarios", "Inglés", "Biología", "Físico química", "Informática", "Psicología", "Matemática", "Microbiologia y Farmacología", "Didáctica", "Enfermería", "Historia", "Salud", "Revistas de Salud", "Literatura", "Misceláneas"],
   _datos: [],
   _errores: [],
   _archivo: null,
