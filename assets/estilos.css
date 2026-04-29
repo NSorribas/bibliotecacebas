@@ -1714,6 +1714,9 @@ th.sortable.desc .sort-arrow {
 .modal-libro-detalle {
   max-width: 580px;
   position: relative;
+  background: var(--glass-bg-solid);
+  border: 1px solid var(--borde);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
 }
 
 /* Close button in modal */
@@ -1853,6 +1856,29 @@ th.sortable.desc .sort-arrow {
   margin-top: auto;
   padding-top: 1rem;
   border-top: 1px solid var(--borde-suave);
+}
+
+/* Color select with preview circle */
+.color-select-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.color-select-wrap .form-select {
+  flex: 1;
+  min-width: 0;
+}
+.color-preview-circle {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 2px solid var(--gris-300);
+  background: var(--gris-200);
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+.color-preview-circle.has-color {
+  border-color: var(--gris-400);
 }
 
 /* Cover URL management in edit mode */

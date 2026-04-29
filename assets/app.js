@@ -480,6 +480,9 @@ const UI = {
       if (id === "modal-prestamo") {
         Prestamos.cargarSelects();
       }
+      if (id === "modal-agregar-libro" || id === "modal-libro") {
+        Catalogo._initColorPreviews();
+      }
     }
   },
 
@@ -960,6 +963,51 @@ const Catalogo = {
   _filtroGenero: "",
   _selectedIds: new Set(),
 
+  // Mapa de colores hex → nombre
+  _COLORES: {
+    "#FF0000": "Rojo",
+    "#00FFFF": "Aqua",
+    "#000000": "Negro",
+    "#0000FF": "Azul",
+    "#FF00FF": "Fúsia",
+    "#808080": "Gris",
+    "#008000": "Verde",
+    "#00FF00": "Lima",
+    "#800000": "Granate",
+    "#808000": "Oliva",
+    "#FFA500": "Naranja",
+    "#800080": "Púrpura",
+    "#C0C0C0": "Plata",
+    "#FFFFFF": "Blanco",
+    "#FFFF00": "Amarillo",
+    "#008080": "Verde azulado"
+  },
+
+  /** Actualiza el círculo preview al cambiar el select de color */
+  actualizarPreviewColor(selectEl) {
+    // Buscar el círculo hermano inmediato
+    const circle = selectEl.parentElement.querySelector(".color-preview-circle");
+    if (!circle) return;
+    const val = selectEl.value;
+    if (val) {
+      circle.style.background = val;
+      circle.classList.add("has-color");
+      // Para colores claros, usar borde más oscuro
+      circle.style.borderColor = (val === "#FFFFFF" || val === "#FFFF00" || val === "#00FFFF" || val === "#C0C0C0" || val === "#00FF00")
+        ? "var(--gris-400)" : val;
+    } else {
+      circle.style.background = "var(--gris-200)";
+      circle.style.borderColor = "";
+      circle.classList.remove("has-color");
+    }
+  },
+
+  /** Inicializa los previews de color al abrir modales */
+  _initColorPreviews() {
+    const selects = document.querySelectorAll(".color-select-wrap .form-select");
+    selects.forEach(sel => this.actualizarPreviewColor(sel));
+  },
+
   async render() {
     const tbody = document.getElementById("tabla-catalogo");
     const filtro = (document.getElementById("buscar-libro")?.value || "").toLowerCase();
@@ -1023,11 +1071,7 @@ const Catalogo = {
         const checked = this._selectedIds.has(item.id) ? "checked" : "";
         const puedeEliminar = Roles.puede("eliminarLibro");
         const tdCheck = puedeEliminar ? `<td style="text-align:center" onclick="event.stopPropagation()"><label class="checkbox-wrap"><input type="checkbox" data-id="${item.id}" ${checked} onchange="Catalogo.toggleSeleccion('${item.id}', this.checked)"><span class="checkmark"></span></label></td>` : "";
-        const colorEtiqueta = item.colorEtiqueta || "";
         const numeroOrden = item.numeroOrden || "";
-        const colorDot = colorEtiqueta
-          ? `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${Utils._escAttr(colorEtiqueta)};vertical-align:middle;margin-right:5px;border:1px solid var(--gris-300)"></span>`
-          : "";
         html += `
           <tr onclick="Catalogo.verDetalle('${item.id}')">
             ${tdCheck}
@@ -1123,7 +1167,8 @@ const Catalogo = {
       document.getElementById("nuevo-libro-isbn").value = "";
       document.getElementById("nuevo-libro-genero").selectedIndex = 0;
       document.getElementById("nuevo-libro-ejemplares").value = "1";
-      document.getElementById("nuevo-libro-color-etiqueta").value = "#3B82F6";
+      document.getElementById("nuevo-libro-color-etiqueta").value = "";
+      this.actualizarPreviewColor(document.getElementById("nuevo-libro-color-etiqueta"));
       document.getElementById("nuevo-libro-numero-orden").value = "";
       UI.cerrarModal("modal-agregar-libro");
       UI.toast(`Libro "${titulo}" agregado correctamente.`);
@@ -1153,11 +1198,14 @@ const Catalogo = {
       document.getElementById("libro-det-autor").textContent = data.autor || "—";
       document.getElementById("libro-det-isbn").textContent = data.isbn || "—";
 
-      // Color de etiqueta con swatch
+      // Color de etiqueta con swatch y nombre
       const colorEtiqueta = data.colorEtiqueta || "";
       const colorDetEl = document.getElementById("libro-det-color-etiqueta");
       if (colorEtiqueta) {
-        colorDetEl.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${Utils._escAttr(colorEtiqueta)};vertical-align:middle;margin-right:6px;border:1px solid var(--gris-300)"></span>${Utils._esc(colorEtiqueta)}`;
+        const nombreColor = this._COLORES[colorEtiqueta.toUpperCase()] || colorEtiqueta;
+        const borderColor = (colorEtiqueta === "#FFFFFF" || colorEtiqueta === "#FFFF00" || colorEtiqueta === "#00FFFF" || colorEtiqueta === "#C0C0C0" || colorEtiqueta === "#00FF00")
+          ? "var(--gris-400)" : colorEtiqueta;
+        colorDetEl.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${Utils._escAttr(colorEtiqueta)};vertical-align:middle;margin-right:6px;border:2px solid ${borderColor}"></span>${Utils._esc(nombreColor)}`;
       } else {
         colorDetEl.textContent = "—";
       }
@@ -1230,7 +1278,8 @@ const Catalogo = {
       document.getElementById("libro-titulo").value = data.titulo || "";
       document.getElementById("libro-autor").value = data.autor || "";
       document.getElementById("libro-isbn").value = data.isbn || "";
-      document.getElementById("libro-color-etiqueta").value = data.colorEtiqueta || "#3B82F6";
+      document.getElementById("libro-color-etiqueta").value = data.colorEtiqueta || "";
+      this.actualizarPreviewColor(document.getElementById("libro-color-etiqueta"));
       document.getElementById("libro-numero-orden").value = data.numeroOrden || "";
       document.getElementById("libro-genero").value = data.genero || "Otro";
       document.getElementById("libro-ejemplares").value = data.ejemplares || 1;
@@ -3900,7 +3949,10 @@ const CargaMasiva = {
       const val = libro[col];
       if (col === "ejemplares") return `<td style="text-align:center">${val}</td>`;
       if (col === "numeroOrden") return `<td style="text-align:center">${val}</td>`;
-      if (col === "colorEtiqueta") return `<td>${val ? `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${Utils._escAttr(val)};vertical-align:middle;border:1px solid var(--gris-300)"></span> ${Utils._esc(val)}` : "—"}</td>`;
+      if (col === "colorEtiqueta") {
+        const nombreColor = Catalogo._COLORES[(val || "").toUpperCase()] || val || "";
+        return `<td>${val ? `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${Utils._escAttr(val)};vertical-align:middle;border:1px solid var(--gris-300)"></span> ${Utils._esc(nombreColor)}` : "—"}</td>`;
+      }
       if (col === "genero") return `<td><span class="badge badge-azul" style="font-size:0.7rem">${Utils._esc(val)}</span></td>`;
       return `<td>${Utils._esc(val || "—")}</td>`;
     }).join("")}</tr>`).join("");
@@ -4544,7 +4596,9 @@ const Exportar = {
     const data = Catalogo._data;
     const rows = [["Titulo", "Autor", "ISBN", "Nro. Orden", "Color Etiqueta", "Genero", "Ejemplares", "Disponibles"]];
     data.forEach(l => {
-      rows.push([l.titulo || "", l.autor || "", l.isbn || "", l.numeroOrden || "", l.colorEtiqueta || "", l.genero || "", l.ejemplares || 0, l.disponibles || 0]);
+      const colorHex = (l.colorEtiqueta || "").toUpperCase();
+      const colorNombre = Catalogo._COLORES[colorHex] || "";
+      rows.push([l.titulo || "", l.autor || "", l.isbn || "", l.numeroOrden || "", colorNombre, l.genero || "", l.ejemplares || 0, l.disponibles || 0]);
     });
 
     const ws = XLSX.utils.aoa_to_sheet(rows);
