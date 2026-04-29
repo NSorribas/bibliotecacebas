@@ -642,13 +642,11 @@
 
   <!-- Modal: Detalle / Editar libro -->
   <div class="overlay" id="modal-libro" onclick="UI.cerrarModal('modal-libro')">
-    <div class="modal modal-libro-detalle" onclick="event.stopPropagation()">
-
-      <!-- Close button -->
-      <button class="modal-close-btn" onclick="UI.cerrarModal('modal-libro')">&#10005;</button>
+    <div class="modal" onclick="event.stopPropagation()">
 
       <!-- VIEW MODE (default) -->
       <div id="libro-view-mode">
+        <h3>Detalle del libro</h3>
         <div class="libro-detalle-layout">
           <!-- Portada -->
           <div class="libro-detalle-cover">
@@ -656,7 +654,7 @@
           </div>
           <!-- Info -->
           <div class="libro-detalle-info">
-            <h3 id="libro-det-titulo" class="libro-det-titulo">&mdash;</h3>
+            <div id="libro-det-titulo" class="libro-det-titulo">&mdash;</div>
             <div class="libro-detalle-meta">
               <div class="libro-det-field">
                 <span class="libro-det-label">Autor</span>
@@ -691,18 +689,22 @@
                 </div>
               </div>
             </div>
-            <!-- Action buttons (shown only with permissions) -->
-            <div class="libro-detalle-actions" id="libro-det-actions">
-              <button class="btn btn-danger" id="btn-det-eliminar" onclick="Catalogo.eliminarDesdeModal()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                Eliminar
-              </button>
-              <button class="btn btn-primary" onclick="Catalogo.activarModoEdicion()">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                Editar
-              </button>
-            </div>
           </div>
+        </div>
+        <!-- Action buttons -->
+        <div class="modal-footer">
+          <button class="btn" onclick="UI.cerrarModal('modal-libro')">Cerrar</button>
+          <div style="flex:1"></div>
+          <span id="libro-det-actions">
+            <button class="btn btn-danger" id="btn-det-eliminar" onclick="Catalogo.eliminarDesdeModal()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+              Eliminar
+            </button>
+            <button class="btn btn-primary" onclick="Catalogo.activarModoEdicion()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              Editar
+            </button>
+          </span>
         </div>
       </div>
 

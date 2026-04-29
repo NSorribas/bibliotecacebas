@@ -963,7 +963,7 @@ const Catalogo = {
   _filtroGenero: "",
   _selectedIds: new Set(),
 
-  // Mapa de colores hex → nombre
+  // Mapa de colores hex → nombre (keys en uppercase)
   _COLORES: {
     "#FF0000": "Rojo",
     "#00FFFF": "Aqua",
@@ -981,6 +981,13 @@ const Catalogo = {
     "#FFFFFF": "Blanco",
     "#FFFF00": "Amarillo",
     "#008080": "Verde azulado"
+  },
+
+  /** Busca el nombre de un color por su hex (case-insensitive) */
+  _nombreColor(hex) {
+    if (!hex) return "";
+    const key = hex.toUpperCase();
+    return this._COLORES[key] || "";
   },
 
   /** Actualiza el círculo preview al cambiar el select de color */
@@ -1201,9 +1208,10 @@ const Catalogo = {
       // Color de etiqueta con swatch y nombre
       const colorEtiqueta = data.colorEtiqueta || "";
       const colorDetEl = document.getElementById("libro-det-color-etiqueta");
-      if (colorEtiqueta) {
-        const nombreColor = this._COLORES[colorEtiqueta.toUpperCase()] || colorEtiqueta;
-        const borderColor = (colorEtiqueta === "#FFFFFF" || colorEtiqueta === "#FFFF00" || colorEtiqueta === "#00FFFF" || colorEtiqueta === "#C0C0C0" || colorEtiqueta === "#00FF00")
+      const nombreColor = this._nombreColor(colorEtiqueta);
+      if (colorEtiqueta && nombreColor) {
+        const hexUpper = colorEtiqueta.toUpperCase();
+        const borderColor = (hexUpper === "#FFFFFF" || hexUpper === "#FFFF00" || hexUpper === "#00FFFF" || hexUpper === "#C0C0C0" || hexUpper === "#00FF00")
           ? "var(--gris-400)" : colorEtiqueta;
         colorDetEl.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${Utils._escAttr(colorEtiqueta)};vertical-align:middle;margin-right:6px;border:2px solid ${borderColor}"></span>${Utils._esc(nombreColor)}`;
       } else {
@@ -1230,8 +1238,8 @@ const Catalogo = {
       this._renderCover(data.coverURL || "", "libro-cover-container");
 
       // Show/hide action buttons based on permissions
-      const actionsDiv = document.getElementById("libro-det-actions");
-      actionsDiv.style.display = Roles.puede("editarLibro") ? "flex" : "none";
+      const actionsSpan = document.getElementById("libro-det-actions");
+      actionsSpan.style.display = Roles.puede("editarLibro") ? "inline-flex" : "none";
 
       // Show view mode, hide edit mode
       document.getElementById("libro-view-mode").style.display = "";
@@ -4596,9 +4604,7 @@ const Exportar = {
     const data = Catalogo._data;
     const rows = [["Titulo", "Autor", "ISBN", "Nro. Orden", "Color Etiqueta", "Genero", "Ejemplares", "Disponibles"]];
     data.forEach(l => {
-      const colorHex = (l.colorEtiqueta || "").toUpperCase();
-      const colorNombre = Catalogo._COLORES[colorHex] || "";
-      rows.push([l.titulo || "", l.autor || "", l.isbn || "", l.numeroOrden || "", colorNombre, l.genero || "", l.ejemplares || 0, l.disponibles || 0]);
+      rows.push([l.titulo || "", l.autor || "", l.isbn || "", l.numeroOrden || "", Catalogo._nombreColor(l.colorEtiqueta), l.genero || "", l.ejemplares || 0, l.disponibles || 0]);
     });
 
     const ws = XLSX.utils.aoa_to_sheet(rows);

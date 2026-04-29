@@ -1710,52 +1710,21 @@ th.sortable.desc .sort-arrow {
   cursor: pointer;
 }
 
-/* Detail modal - wider */
-.modal-libro-detalle {
-  max-width: 580px;
-  position: relative;
-  background: var(--glass-bg-solid);
-  border: 1px solid var(--borde);
-  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.15);
-}
-
-/* Close button in modal */
-.modal-close-btn {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  color: var(--texto-muted);
-  font-size: 18px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  z-index: 2;
-  transition: all 0.15s;
-  line-height: 1;
-}
-.modal-close-btn:hover {
-  color: var(--texto);
-  background: var(--gris-100);
-}
-
 /* Detail layout: cover left, info right */
 .libro-detalle-layout {
   display: flex;
-  gap: 1.5rem;
-  margin-top: 0.5rem;
+  gap: 1rem;
 }
 
 .libro-detalle-cover {
   flex-shrink: 0;
-  width: 180px;
+  width: 130px;
 }
 
 /* Cover image wrapper */
 .libro-cover-wrap {
-  width: 180px;
-  height: 250px;
+  width: 130px;
+  height: 181px;
   border-radius: 8px;
   overflow: hidden;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1), 0 1px 3px rgba(0, 0, 0, 0.06);
@@ -1808,19 +1777,18 @@ th.sortable.desc .sort-arrow {
 
 .libro-det-titulo {
   font-family: 'Montserrat', serif;
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 1rem;
+  font-weight: 600;
   color: var(--texto);
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
   line-height: 1.3;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.1px;
 }
 
 .libro-detalle-meta {
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  margin-bottom: 1.25rem;
+  gap: 8px;
 }
 
 .libro-det-field {
@@ -1847,15 +1815,6 @@ th.sortable.desc .sort-arrow {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 12px;
-}
-
-/* Action buttons at bottom of detail */
-.libro-detalle-actions {
-  display: flex;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 1rem;
-  border-top: 1px solid var(--borde-suave);
 }
 
 /* Color select with preview circle */
@@ -1956,28 +1915,17 @@ th.sortable.desc .sort-arrow {
 
 /* Responsive: stack detail layout on mobile */
 @media (max-width: 520px) {
-  .modal-libro-detalle {
-    max-width: 95vw;
-    padding: 1.25rem;
-  }
   .libro-detalle-layout {
     flex-direction: column;
     align-items: center;
     text-align: center;
   }
   .libro-detalle-cover {
-    width: 140px;
+    width: 120px;
   }
   .libro-cover-wrap {
-    width: 140px;
-    height: 195px;
-  }
-  .libro-detalle-actions {
-    flex-direction: column;
-  }
-  .libro-detalle-actions .btn {
-    width: 100%;
-    justify-content: center;
+    width: 120px;
+    height: 167px;
   }
 }
 
