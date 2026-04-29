@@ -269,6 +269,7 @@
                   </th>
                   <th class="sortable" data-sort="titulo">Título <span class="sort-arrow"></span></th>
                   <th class="sortable" data-sort="autor">Autor <span class="sort-arrow"></span></th>
+                  <th class="sortable" data-sort="numeroOrden">Nro. <span class="sort-arrow"></span></th>
                   <th class="sortable" data-sort="genero">Género <span class="sort-arrow"></span></th>
                   <th class="sortable" data-sort="ejemplares">Ejemplares <span class="sort-arrow"></span></th>
                   <th class="sortable" data-sort="disponibles" style="text-align:center">Disponibles <span class="sort-arrow"></span></th>
@@ -665,6 +666,16 @@
                 <span class="libro-det-label">ISBN</span>
                 <span class="libro-det-value" id="libro-det-isbn">&mdash;</span>
               </div>
+              <div class="libro-det-row">
+                <div class="libro-det-field">
+                  <span class="libro-det-label">Color de etiqueta</span>
+                  <span class="libro-det-value" id="libro-det-color-etiqueta">&mdash;</span>
+                </div>
+                <div class="libro-det-field">
+                  <span class="libro-det-label">Nro. de orden</span>
+                  <span class="libro-det-value" id="libro-det-numero-orden">&mdash;</span>
+                </div>
+              </div>
               <div class="libro-det-field">
                 <span class="libro-det-label">Género</span>
                 <span class="libro-det-value" id="libro-det-genero">&mdash;</span>
@@ -711,6 +722,16 @@
             <div class="form-group">
               <label>ISBN</label>
               <input class="form-input" id="libro-isbn" type="text" placeholder="ISBN">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Color de etiqueta</label>
+              <input class="form-input" id="libro-color-etiqueta" type="color" value="#3B82F6" style="height:38px;padding:4px;cursor:pointer">
+            </div>
+            <div class="form-group">
+              <label>Número de orden *</label>
+              <input class="form-input" id="libro-numero-orden" type="number" min="1" required>
             </div>
           </div>
           <div class="form-row">
@@ -768,6 +789,16 @@
           <div class="form-group">
             <label>ISBN</label>
             <input class="form-input" id="nuevo-libro-isbn" type="text" placeholder="ISBN">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Color de etiqueta</label>
+            <input class="form-input" id="nuevo-libro-color-etiqueta" type="color" value="#3B82F6" style="height:38px;padding:4px;cursor:pointer">
+          </div>
+          <div class="form-group">
+            <label>Número de orden *</label>
+            <input class="form-input" id="nuevo-libro-numero-orden" type="number" placeholder="Ej: 1" min="1" required>
           </div>
         </div>
         <div class="form-row">

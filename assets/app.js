@@ -977,7 +977,7 @@ const Catalogo = {
         const disponibles = (data.disponibles ?? data.ejemplares ?? 0);
 
         if (filtro) {
-          const texto = `${data.titulo} ${data.autor} ${data.isbn}`.toLowerCase();
+          const texto = `${data.titulo} ${data.autor} ${data.isbn} ${data.numeroOrden}`.toLowerCase();
           if (!texto.includes(filtro)) return;
         }
         if (filtroGenero && (data.genero || "") !== filtroGenero) return;
@@ -994,6 +994,7 @@ const Catalogo = {
           if (col === 'genero') return item.genero || '';
           if (col === 'ejemplares') return item.ejemplares || 0;
           if (col === 'disponibles') return item.disponibles || 0;
+          if (col === 'numeroOrden') return item.numeroOrden || 0;
           return '';
         });
       }
@@ -1022,11 +1023,17 @@ const Catalogo = {
         const checked = this._selectedIds.has(item.id) ? "checked" : "";
         const puedeEliminar = Roles.puede("eliminarLibro");
         const tdCheck = puedeEliminar ? `<td style="text-align:center" onclick="event.stopPropagation()"><label class="checkbox-wrap"><input type="checkbox" data-id="${item.id}" ${checked} onchange="Catalogo.toggleSeleccion('${item.id}', this.checked)"><span class="checkmark"></span></label></td>` : "";
+        const colorEtiqueta = item.colorEtiqueta || "";
+        const numeroOrden = item.numeroOrden || "";
+        const colorDot = colorEtiqueta
+          ? `<span style="display:inline-block;width:12px;height:12px;border-radius:50%;background:${Utils._escAttr(colorEtiqueta)};vertical-align:middle;margin-right:5px;border:1px solid var(--gris-300)"></span>`
+          : "";
         html += `
           <tr onclick="Catalogo.verDetalle('${item.id}')">
             ${tdCheck}
             <td><strong>${Utils._esc(item.titulo)}</strong></td>
             <td>${Utils._esc(item.autor)}</td>
+            <td style="text-align:center">${numeroOrden}</td>
             <td>${Utils._esc(item.genero || "—")}</td>
             <td>${item.ejemplares || 0}</td>
             <td style="text-align:center">${badgeHTML}</td>
@@ -1037,7 +1044,7 @@ const Catalogo = {
         html = UI.emptyState(
           filtro || filtroGenero ? "search" : "book",
           filtro || filtroGenero ? "No se encontraron resultados." : "Aún no hay libros en el catálogo.",
-          Roles.puede("eliminarLibro") ? 6 : 5
+          Roles.puede("eliminarLibro") ? 7 : 6
         );
       }
 
@@ -1060,7 +1067,7 @@ const Catalogo = {
       });
     } catch (error) {
       console.error("Error al cargar catalogo:", error);
-      tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:2rem;color:#B42318">
+      tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:2rem;color:#B42318">
         Error al cargar datos. Verifica la conexion con Firebase.
       </td></tr>`;
     }
@@ -1072,6 +1079,8 @@ const Catalogo = {
     const isbn = document.getElementById("nuevo-libro-isbn").value.trim();
     const genero = document.getElementById("nuevo-libro-genero").value;
     const ejemplares = parseInt(document.getElementById("nuevo-libro-ejemplares").value) || 1;
+    const colorEtiqueta = document.getElementById("nuevo-libro-color-etiqueta").value || "";
+    const numeroOrden = parseInt(document.getElementById("nuevo-libro-numero-orden").value);
 
     if (!titulo) {
       UI.toast("El titulo es obligatorio.", "danger");
@@ -1079,6 +1088,10 @@ const Catalogo = {
     }
     if (!autor) {
       UI.toast("El autor es obligatorio.", "danger");
+      return;
+    }
+    if (!numeroOrden || numeroOrden < 1) {
+      UI.toast("El numero de orden es obligatorio.", "danger");
       return;
     }
 
@@ -1097,6 +1110,8 @@ const Catalogo = {
         genero, ejemplares,
         disponibles: ejemplares,
         coverURL,
+        colorEtiqueta,
+        numeroOrden,
         createdAt: serverTimestamp()
       });
 
@@ -1108,6 +1123,8 @@ const Catalogo = {
       document.getElementById("nuevo-libro-isbn").value = "";
       document.getElementById("nuevo-libro-genero").selectedIndex = 0;
       document.getElementById("nuevo-libro-ejemplares").value = "1";
+      document.getElementById("nuevo-libro-color-etiqueta").value = "#3B82F6";
+      document.getElementById("nuevo-libro-numero-orden").value = "";
       UI.cerrarModal("modal-agregar-libro");
       UI.toast(`Libro "${titulo}" agregado correctamente.`);
       this.render();
@@ -1135,6 +1152,17 @@ const Catalogo = {
       document.getElementById("libro-det-titulo").textContent = data.titulo || "—";
       document.getElementById("libro-det-autor").textContent = data.autor || "—";
       document.getElementById("libro-det-isbn").textContent = data.isbn || "—";
+
+      // Color de etiqueta con swatch
+      const colorEtiqueta = data.colorEtiqueta || "";
+      const colorDetEl = document.getElementById("libro-det-color-etiqueta");
+      if (colorEtiqueta) {
+        colorDetEl.innerHTML = `<span style="display:inline-block;width:16px;height:16px;border-radius:50%;background:${Utils._escAttr(colorEtiqueta)};vertical-align:middle;margin-right:6px;border:1px solid var(--gris-300)"></span>${Utils._esc(colorEtiqueta)}`;
+      } else {
+        colorDetEl.textContent = "—";
+      }
+      document.getElementById("libro-det-numero-orden").textContent = data.numeroOrden || "—";
+
       document.getElementById("libro-det-genero").textContent = data.genero || "—";
       document.getElementById("libro-det-ejemplares").textContent = data.ejemplares || 0;
 
@@ -1202,6 +1230,8 @@ const Catalogo = {
       document.getElementById("libro-titulo").value = data.titulo || "";
       document.getElementById("libro-autor").value = data.autor || "";
       document.getElementById("libro-isbn").value = data.isbn || "";
+      document.getElementById("libro-color-etiqueta").value = data.colorEtiqueta || "#3B82F6";
+      document.getElementById("libro-numero-orden").value = data.numeroOrden || "";
       document.getElementById("libro-genero").value = data.genero || "Otro";
       document.getElementById("libro-ejemplares").value = data.ejemplares || 1;
       document.getElementById("libro-cover-url").value = data.coverURL || "";
@@ -1255,9 +1285,15 @@ const Catalogo = {
     const genero = document.getElementById("libro-genero").value;
     const ejemplaresNuevos = parseInt(document.getElementById("libro-ejemplares").value) || 1;
     const coverURL = document.getElementById("libro-cover-url").value.trim();
+    const colorEtiqueta = document.getElementById("libro-color-etiqueta").value || "";
+    const numeroOrden = parseInt(document.getElementById("libro-numero-orden").value);
 
     if (!titulo || !autor) {
       UI.toast("Titulo y autor son obligatorios.", "danger");
+      return;
+    }
+    if (!numeroOrden || numeroOrden < 1) {
+      UI.toast("El numero de orden es obligatorio.", "danger");
       return;
     }
 
@@ -1275,7 +1311,9 @@ const Catalogo = {
         isbn: isbn || "",
         genero, ejemplares: ejemplaresNuevos,
         disponibles: nuevosDisponibles,
-        coverURL
+        coverURL,
+        colorEtiqueta,
+        numeroOrden
       });
 
       Utils.invalidarCache();
@@ -3689,11 +3727,11 @@ const CargaMasiva = {
   async descargarPlantilla() {
     await Utils.loadXLSX();
     const wsData = [
-      ["titulo", "autor", "isbn", "genero", "ejemplares"],
-      ["El principito", "Antoine de Saint-Exupéry", "978-987-01-0001-1", "Literatura", 3],
-      ["Cien años de soledad", "Gabriel García Márquez", "978-987-01-0002-8", "Novela", 2],
-      ["Matemática 1", "Autores Varios", "", "Matemática", 15],
-      ["Historia Argentina", "José María Rosa", "", "Historia", 5],
+      ["titulo", "autor", "isbn", "colorEtiqueta", "numeroOrden", "genero", "ejemplares"],
+      ["El principito", "Antoine de Saint-Exupéry", "978-987-01-0001-1", "#3B82F6", 1, "Literatura", 3],
+      ["Cien años de soledad", "Gabriel García Márquez", "978-987-01-0002-8", "#EF4444", 2, "Novela", 2],
+      ["Matemática 1", "Autores Varios", "", "#10B981", 3, "Matemática", 15],
+      ["Historia Argentina", "José María Rosa", "", "#F59E0B", 4, "Historia", 5],
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     // Ajustar anchos de columna
@@ -3701,6 +3739,8 @@ const CargaMasiva = {
       { wch: 30 }, // titulo
       { wch: 30 }, // autor
       { wch: 22 }, // isbn
+      { wch: 16 }, // colorEtiqueta
+      { wch: 14 }, // numeroOrden
       { wch: 16 }, // genero
       { wch: 12 }, // ejemplares
     ];
@@ -3801,6 +3841,8 @@ const CargaMasiva = {
       const titulo = String(fila.titulo || fila.Titulo || fila.TITULO || fila.title || fila.Title || "").trim();
       const autor = String(fila.autor || fila.Autor || fila.AUTOR || fila.author || fila.Author || "").trim();
       const isbn = String(fila.isbn || fila.ISBN || fila.Isbn || "").trim();
+      const colorEtiqueta = String(fila.colorEtiqueta || fila.coloretiqueta || fila.ColorEtiqueta || fila.COLOR_ETIQUETA || "").trim();
+      const numeroOrdenRaw = parseInt(fila.numeroOrden || fila.numeroorden || fila.NumeroOrden || fila.NUMERO_ORDEN || 0) || 0;
       const generoRaw = String(fila.genero || fila.Genero || fila.GENERO || fila.genre || "").trim();
       const ejemplaresRaw = parseInt(fila.ejemplares || fila.Ejemplares || fila.EJEMPLARES || fila.cantidad || 1) || 1;
 
@@ -3813,16 +3855,24 @@ const CargaMasiva = {
         genero = match || "Otro";
       }
 
+      // Validar formato de color hex (#RRGGBB)
+      const hexColorRegex = /^#([0-9A-Fa-f]{6})$/;
+      const colorFinal = hexColorRegex.test(colorEtiqueta) ? colorEtiqueta : "";
+
       if (!titulo || !autor) {
         this._errores.push(`Fila ${idx + 2}: falta titulo o autor`);
         return;
       }
+      if (!numeroOrdenRaw || numeroOrdenRaw < 1) {
+        this._errores.push(`Fila ${idx + 2}: falta numero de orden`);
+        return;
+      }
 
-      this._datos.push({ titulo, autor, isbn, genero, ejemplares: Math.max(1, ejemplaresRaw) });
+      this._datos.push({ titulo, autor, isbn, colorEtiqueta: colorFinal, numeroOrden: numeroOrdenRaw, genero, ejemplares: Math.max(1, ejemplaresRaw) });
     });
 
     // Definir columnas a mostrar en la vista previa
-    this._columnas = ["titulo", "autor", "isbn", "genero", "ejemplares"];
+    this._columnas = ["titulo", "autor", "isbn", "colorEtiqueta", "numeroOrden", "genero", "ejemplares"];
   },
 
   // ── Paso 2: Vista previa ────────────────────────
@@ -3838,7 +3888,7 @@ const CargaMasiva = {
 
     // Header de la tabla
     const head = document.getElementById("carga-previa-head");
-    const etiquetas = { titulo: "Titulo", autor: "Autor", isbn: "ISBN", genero: "Genero", ejemplares: "Ejemplares" };
+    const etiquetas = { titulo: "Titulo", autor: "Autor", isbn: "ISBN", colorEtiqueta: "Color", numeroOrden: "Nro.", genero: "Genero", ejemplares: "Ejemplares" };
     head.innerHTML = `<tr>${this._columnas.map(col =>
       `<th${col === "ejemplares" ? ' style="text-align:center"' : ""}>${etiquetas[col] || col}</th>`
     ).join("")}</tr>`;
@@ -3849,6 +3899,8 @@ const CargaMasiva = {
     tbody.innerHTML = preview.map(libro => `<tr>${this._columnas.map(col => {
       const val = libro[col];
       if (col === "ejemplares") return `<td style="text-align:center">${val}</td>`;
+      if (col === "numeroOrden") return `<td style="text-align:center">${val}</td>`;
+      if (col === "colorEtiqueta") return `<td>${val ? `<span style="display:inline-block;width:14px;height:14px;border-radius:50%;background:${Utils._escAttr(val)};vertical-align:middle;border:1px solid var(--gris-300)"></span> ${Utils._esc(val)}` : "—"}</td>`;
       if (col === "genero") return `<td><span class="badge badge-azul" style="font-size:0.7rem">${Utils._esc(val)}</span></td>`;
       return `<td>${Utils._esc(val || "—")}</td>`;
     }).join("")}</tr>`).join("");
@@ -3949,6 +4001,8 @@ const CargaMasiva = {
             ejemplares: libro.ejemplares,
             disponibles: libro.ejemplares,
             coverURL: libro.coverURL || "",
+            colorEtiqueta: libro.colorEtiqueta || "",
+            numeroOrden: libro.numeroOrden || null,
             createdAt: serverTimestamp()
           });
         });
@@ -4433,11 +4487,12 @@ const Exportar = {
     doc.text(`${data.length} titulos  |  ${totalEj} ejemplares  |  ${totalDisp} disponibles  |  ${totalEj - totalDisp} prestados`, 14, 32);
 
     // Table
-    const head = [["Titulo", "Autor", "ISBN", "Genero", "Ej.", "Disp."]];
+    const head = [["Titulo", "Autor", "ISBN", "Nro.", "Genero", "Ej.", "Disp."]];
     const body = data.map(l => [
       l.titulo || "",
       l.autor || "",
       l.isbn || "",
+      String(l.numeroOrden || ""),
       l.genero || "",
       String(l.ejemplares || 0),
       String(l.disponibles || 0),
@@ -4457,12 +4512,13 @@ const Exportar = {
       bodyStyles: { fontSize: 8, cellPadding: 2.5 },
       alternateRowStyles: { fillColor: [241, 245, 249] },
       columnStyles: {
-        0: { cellWidth: 45 },
-        1: { cellWidth: 40 },
-        2: { cellWidth: 38 },
-        3: { cellWidth: 28 },
-        4: { cellWidth: 12, halign: "center" },
-        5: { cellWidth: 14, halign: "center" },
+        0: { cellWidth: 42 },
+        1: { cellWidth: 36 },
+        2: { cellWidth: 34 },
+        3: { cellWidth: 10, halign: "center" },
+        4: { cellWidth: 25 },
+        5: { cellWidth: 12, halign: "center" },
+        6: { cellWidth: 14, halign: "center" },
       },
       styles: { overflow: "linebreak" },
     });
@@ -4486,14 +4542,14 @@ const Exportar = {
   // ── CATALOGO XLSX ───────────────────────────────────────────
   async _catalogoXLSX() {
     const data = Catalogo._data;
-    const rows = [["Titulo", "Autor", "ISBN", "Genero", "Ejemplares", "Disponibles"]];
+    const rows = [["Titulo", "Autor", "ISBN", "Nro. Orden", "Color Etiqueta", "Genero", "Ejemplares", "Disponibles"]];
     data.forEach(l => {
-      rows.push([l.titulo || "", l.autor || "", l.isbn || "", l.genero || "", l.ejemplares || 0, l.disponibles || 0]);
+      rows.push([l.titulo || "", l.autor || "", l.isbn || "", l.numeroOrden || "", l.colorEtiqueta || "", l.genero || "", l.ejemplares || 0, l.disponibles || 0]);
     });
 
     const ws = XLSX.utils.aoa_to_sheet(rows);
     ws["!cols"] = [
-      { wch: 35 }, { wch: 30 }, { wch: 18 }, { wch: 16 }, { wch: 12 }, { wch: 12 },
+      { wch: 35 }, { wch: 30 }, { wch: 18 }, { wch: 12 }, { wch: 16 }, { wch: 16 }, { wch: 12 }, { wch: 12 },
     ];
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Catalogo");
