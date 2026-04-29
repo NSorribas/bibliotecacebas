@@ -1314,7 +1314,7 @@ const Catalogo = {
       document.getElementById("libro-color-etiqueta").value = data.colorEtiqueta || "";
       this.actualizarPreviewColor(document.getElementById("libro-color-etiqueta"));
       document.getElementById("libro-numero-orden").value = data.numeroOrden || "";
-      document.getElementById("libro-genero").value = data.genero || "Otro";
+      document.getElementById("libro-genero").value = data.genero || "Misceláneas";
       document.getElementById("libro-ejemplares").value = data.ejemplares || 1;
       document.getElementById("libro-cover-url").value = data.coverURL || "";
 
@@ -3744,7 +3744,7 @@ window.Notificaciones = Notificaciones;
 // ══════════════════════════════════════════════════════════════
 
 const CargaMasiva = {
-  GENEROS_VALIDOS: ["Literatura", "Novela", "Texto escolar", "Historia", "Ciencias", "Matemática", "Arte", "Otro"],
+  GENEROS_VALIDOS: ["Anatomía", "Filosofía", "Diccionarios", "Inglés", "Biología", "Físico química", "Informática", "Psicología", "Matemática", "Microbiologia y farmacologia", "Didáctica", "Enfermería", "Historia", "Salud", "Revistas de Salud", "Literatura", "Misceláneas"],
   _datos: [],
   _errores: [],
   _archivo: null,
@@ -3811,9 +3811,9 @@ const CargaMasiva = {
     const wsData = [
       ["titulo", "autor", "isbn", "colorEtiqueta", "numeroOrden", "genero", "ejemplares"],
       ["El principito", "Antoine de Saint-Exupéry", "978-987-01-0001-1", "Azul", 1, "Literatura", 3],
-      ["Cien años de soledad", "Gabriel García Márquez", "978-987-01-0002-8", "Rojo", 2, "Novela", 2],
+      ["Cien años de soledad", "Gabriel García Márquez", "978-987-01-0002-8", "Rojo", 2, "Historia", 2],
       ["Matemática 1", "Autores Varios", "", "Verde", 3, "Matemática", 15],
-      ["Historia Argentina", "José María Rosa", "", "Naranja", 4, "Historia", 5],
+      ["Físico química básica", "Autores Varios", "", "Naranja", 4, "Físico química", 5],
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     // Ajustar anchos de columna
@@ -3930,13 +3930,13 @@ const CargaMasiva = {
       const generoRaw = String(fila.genero || fila.Genero || fila.GENERO || fila.genre || "").trim();
       const ejemplaresRaw = parseInt(fila.ejemplares || fila.Ejemplares || fila.EJEMPLARES || fila.cantidad || 1) || 1;
 
-      let genero = "Otro";
+      let genero = "Misceláneas";
       if (generoRaw) {
         const match = this.GENEROS_VALIDOS.find(g =>
           g.toLowerCase() === generoRaw.toLowerCase() ||
           g.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === generoRaw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase()
         );
-        genero = match || "Otro";
+        genero = match || "Misceláneas";
       }
 
       // Validar y normalizar color (acepta nombre como "Rojo" o hex como "#FF0000")
