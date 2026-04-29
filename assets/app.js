@@ -3892,6 +3892,8 @@ const CargaMasiva = {
 
     this._archivo = file;
 
+    await Utils.loadXLSX();
+
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
@@ -4273,6 +4275,8 @@ const CargaMasivaUsuarios = {
       return;
     }
     this._archivo = file;
+
+    await Utils.loadXLSX();
 
     const reader = new FileReader();
     reader.onload = (e) => {
