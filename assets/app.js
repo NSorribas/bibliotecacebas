@@ -983,6 +983,31 @@ const Catalogo = {
     "#008080": "Verde azulado"
   },
 
+  /** Mapeo inverso: nombre de color → hex (para carga masiva y búsqueda) */
+  _COLORES_NOMBRE_HEX: null, // se genera lazy en _initColorMap
+
+  _initColorMap() {
+    if (this._COLORES_NOMBRE_HEX) return;
+    this._COLORES_NOMBRE_HEX = {};
+    for (const [hex, nombre] of Object.entries(this._COLORES)) {
+      this._COLORES_NOMBRE_HEX[nombre.toUpperCase()] = hex;
+    }
+  },
+
+  /** Convierte un valor de color (nombre o hex) a hex válido */
+  _resolverColor(colorRaw) {
+    if (!colorRaw) return "";
+    const str = colorRaw.trim();
+    // Si ya es hex, normalizar
+    const hexRegex = /^#?([0-9A-Fa-f]{6})$/;
+    if (hexRegex.test(str)) {
+      return str.startsWith("#") ? str.toUpperCase() : "#" + str.toUpperCase();
+    }
+    // Buscar por nombre (case-insensitive)
+    this._initColorMap();
+    return this._COLORES_NOMBRE_HEX[str.toUpperCase()] || "";
+  },
+
   /** Busca el nombre de un color por su hex (case-insensitive) */
   _nombreColor(hex) {
     if (!hex) return "";
@@ -3785,10 +3810,10 @@ const CargaMasiva = {
     await Utils.loadXLSX();
     const wsData = [
       ["titulo", "autor", "isbn", "colorEtiqueta", "numeroOrden", "genero", "ejemplares"],
-      ["El principito", "Antoine de Saint-Exupéry", "978-987-01-0001-1", "#3B82F6", 1, "Literatura", 3],
-      ["Cien años de soledad", "Gabriel García Márquez", "978-987-01-0002-8", "#EF4444", 2, "Novela", 2],
-      ["Matemática 1", "Autores Varios", "", "#10B981", 3, "Matemática", 15],
-      ["Historia Argentina", "José María Rosa", "", "#F59E0B", 4, "Historia", 5],
+      ["El principito", "Antoine de Saint-Exupéry", "978-987-01-0001-1", "Azul", 1, "Literatura", 3],
+      ["Cien años de soledad", "Gabriel García Márquez", "978-987-01-0002-8", "Rojo", 2, "Novela", 2],
+      ["Matemática 1", "Autores Varios", "", "Verde", 3, "Matemática", 15],
+      ["Historia Argentina", "José María Rosa", "", "Naranja", 4, "Historia", 5],
     ];
     const ws = XLSX.utils.aoa_to_sheet(wsData);
     // Ajustar anchos de columna
@@ -3912,9 +3937,8 @@ const CargaMasiva = {
         genero = match || "Otro";
       }
 
-      // Validar formato de color hex (#RRGGBB)
-      const hexColorRegex = /^#([0-9A-Fa-f]{6})$/;
-      const colorFinal = hexColorRegex.test(colorEtiqueta) ? colorEtiqueta : "";
+      // Validar y normalizar color (acepta nombre como "Rojo" o hex como "#FF0000")
+      const colorFinal = Catalogo._resolverColor(colorEtiqueta);
 
       if (!titulo || !autor) {
         this._errores.push(`Fila ${idx + 2}: falta titulo o autor`);
