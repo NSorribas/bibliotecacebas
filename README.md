@@ -14,7 +14,7 @@ Aplicación web SPA para administrar el catálogo, préstamos, devoluciones y us
 de una biblioteca escolar. Desarrollada con HTML, CSS y JavaScript vanilla,
 con Firebase como backend.
 
-[Ver demo en vivo →](https://mozzvader.github.io/bibliotecacebas/)
+[Ver demo en vivo →](https://nsorribas.github.io/bibliotecacebas/)
 
 </div>
 
