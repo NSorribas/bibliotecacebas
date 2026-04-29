@@ -650,7 +650,7 @@ tr:hover td { background: var(--td-hover); }
 .form-group { display: flex; flex-direction: column; gap: 5px; }
 .form-group label {
   font-size: 13px; font-weight: 700; letter-spacing: 0.3px;
-  color: var(--texto-medio); text-transform: uppercase;
+  color: var(--texto); text-transform: uppercase;
 }
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 
@@ -667,7 +667,7 @@ tr:hover td { background: var(--td-hover); }
 }
 .overlay.open { display: flex; }
 .modal {
-  background: var(--glass-bg);
+  background: var(--glass-bg-solid);
   backdrop-filter: blur(calc(var(--glass-blur) + 8px));
   -webkit-backdrop-filter: blur(calc(var(--glass-blur) + 8px));
   border: 1px solid var(--glass-border);
